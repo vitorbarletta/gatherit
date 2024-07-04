@@ -4,10 +4,14 @@ import {Tabs} from 'expo-router'
 import { MaterialIcons } from '@expo/vector-icons';
 import {Colors} from '../../constants/Colors'
 import { FontAwesome5 } from '@expo/vector-icons';
+import SignIn from '../auth/sign-in/index'
+import SignUp from '../auth/sign-up/index'
+import { UserProvider } from '../UserContext';
 
 export default function TabLayout() {
   
   return (
+  <UserProvider>
     <Tabs screenOptions={{
       headerShown: false,
       tabBarActiveTintColor: Colors.blue,
@@ -44,5 +48,6 @@ export default function TabLayout() {
           tabBarIcon:({color}) => <FontAwesome5 name="user-alt" size={25} color={color} />
         }}/>
     </Tabs>
+  </UserProvider>
   )
 }
