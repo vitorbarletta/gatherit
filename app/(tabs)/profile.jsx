@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Image } from 'react-native';
 import { useUser } from '../UserContext';
 import { getAuth, updateProfile, updatePhoneNumber } from 'firebase/auth';
+import { Colors } from '../../constants/Colors';
 
 export default function Profile() {
   const { user } = useUser();
@@ -41,9 +42,9 @@ export default function Profile() {
 
   return (
     <View style={styles.container}>
-      <Text>Email: {user.email}</Text>
+      {/* <Text>Email: {user.email}</Text>
       <Text>UID: {user.uid}</Text>
-      {user.displayName && <Text>Nome: {user.displayName}</Text>}
+      
       {user.photoURL && (
         <Image source={{ uri: user.photoURL }} style={styles.profileImage} />
       )}
@@ -62,7 +63,23 @@ export default function Profile() {
         title="Alterar Dados"
         onPress={handleUpdateProfile}
         disabled={loading}
-      />
+      /> */}
+
+      <Text style={{
+        fontSize: 24,
+        fontFamily: 'airbnbcereal-bold'
+      }}>Seu Perfil</Text>
+
+      {user.photoURL && (
+        <Image source={{ uri: user.photoURL }} style={styles.profileImage} />
+      )}
+
+      {user.displayName && <Text style={{
+        fontSize: 24,
+        fontFamily: 'airbnbcereal-bold'
+      }}>{user.displayName}</Text>}
+
+
     </View>
 
   );
@@ -70,11 +87,10 @@ export default function Profile() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 20,
+    padding: 25,
+    paddingTop: 65,
+    backgroundColor: Colors.white,
+    height: '100%'
   },
   input: {
     width: '100%',
@@ -89,5 +105,6 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     marginTop: 10,
+    backgroundColor: '#000'
   },
 });

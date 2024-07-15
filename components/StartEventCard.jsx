@@ -37,7 +37,7 @@ export default function StartEventCard() {
       >Não deixe seu calendário vazio! Marque agora e transforme dias comuns em momentos especiais.</Text>
 
     <TouchableOpacity 
-    onPress={()=> router.push('/create-event/search-place')}
+    onPress={()=> router.push('/create-event/addEvent')}
     style={{
         marginTop: 30
     }}>
