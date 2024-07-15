@@ -7,6 +7,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import SignIn from '../auth/sign-in/index'
 import SignUp from '../auth/sign-up/index'
 import { UserProvider } from '../UserContext';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function TabLayout() {
   
@@ -25,6 +26,14 @@ export default function TabLayout() {
         height: 80
       }
     }}>
+        <Tabs.Screen 
+        name='home'
+        options={{
+          tabBarLabel:'Home',
+          tabBarIcon:({color}) => <Ionicons name="home-sharp" size={24} color={color} />
+        }}
+        />
+        
         <Tabs.Screen 
         name='myevent'
         options={{

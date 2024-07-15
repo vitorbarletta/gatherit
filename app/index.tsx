@@ -13,7 +13,7 @@ export default function Index() {
         flex: 1,
       }}
     >
-      {user?<Redirect href={'myevent'}/>:<Login/>}
+      {user?<Redirect href={'home'}/>:<Login/>}
       
     </View>
   );

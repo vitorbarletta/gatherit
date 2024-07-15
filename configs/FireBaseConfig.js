@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, setPersistence, browserLocalPersistence, onAuthStateChanged  } from "firebase/auth";
 import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
@@ -12,8 +12,20 @@ const firebaseConfig = {
   measurementId: "G-27WYV2ZLKQ"
 };
 
-// Initialize Firebase
-export const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app)
-export const auth = getAuth(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+
+// Observador de autenticação
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    console.log('Usuário logado:', user);
+  } else {
+    console.log('Usuário não está logado');
+  }
+});
+
+export {auth, db, app}
+
 

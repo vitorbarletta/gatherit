@@ -25,7 +25,7 @@ export default function SignIn() {
       // Signed in 
       const user = userCredential.user;
       console.log(user)
-      router.replace('/myevent')
+      router.replace('/home')
       // ...
     })
     .catch((error) => {
