@@ -1,10 +1,11 @@
-import { View, Text, TextInput } from 'react-native'
+import { View, Text, TextInput, ScrollView } from 'react-native'
 import React from 'react'
 import { Colors } from '../../constants/Colors'
 import { useUser } from '../UserContext';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../../components/Header';
 import Slider from '../../components/Slider';
+import PopularEvents from '../../components/PopularEvents';
 
 
 export default function Home() {
@@ -12,7 +13,7 @@ export default function Home() {
     const { user } = useUser()
   
     return (
-    <View style={{
+    <ScrollView style={{
         backgroundColor: Colors.white,
         height: '100%'
     }}>
@@ -22,9 +23,12 @@ export default function Home() {
 
     {/* SLIDER */}
     <Slider/>
+
+    {/* EVENTOS EM ALTA */}
+    <PopularEvents/>
     
       
     
-    </View>
+    </ScrollView>
   )
 }
