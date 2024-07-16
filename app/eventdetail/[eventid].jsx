@@ -11,6 +11,7 @@ export default function EventDetail() {
     const {eventid} = useLocalSearchParams()
     const [event, setEvent] = useState()
     const [loading, setLoading] = useState(false)
+    const [userID, setUserID] = useState()
     
     useEffect(()=>{
         GetEventDetailByID()
@@ -23,6 +24,8 @@ export default function EventDetail() {
 
         if (docSnap.exists()){
             setEvent(docSnap.data())
+            console.log("ID DO EVENTO:", eventid)
+            setUserID(docSnap.data().userId)
             setLoading(false)
         } else {
             console.log("No such document")
@@ -34,7 +37,7 @@ export default function EventDetail() {
     <View>
         {loading? <ActivityIndicator style={{marginTop: '70%'}} size={'large'} color={Colors.blue}/>: 
         <View>
-            <Intro event={event} />
+            <Intro event={event} eventID={eventid} userID={userID} />
         </View>}
       
     </View>

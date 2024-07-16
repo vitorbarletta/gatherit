@@ -1,5 +1,6 @@
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
+import {UserProvider} from './UserContext'
 
 
 export default function RootLayout() {
@@ -14,11 +15,14 @@ export default function RootLayout() {
   })
   
   return (
-    <Stack screenOptions={{
-      headerShown: false
-    }}>
-      {/* <Stack.Screen name="index" /> */}
-      <Stack.Screen name="(tabs)"/>
-    </Stack>
+
+    <UserProvider>
+      <Stack screenOptions={{
+        headerShown: false
+      }}>
+        {/* <Stack.Screen name="index" /> */}
+        <Stack.Screen name="(tabs)"/>
+      </Stack>
+    </UserProvider>
   );
 }

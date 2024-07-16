@@ -1,13 +1,49 @@
-import { View, Text, Image, TouchableOpacity, StatusBar, StyleSheet, ScrollView } from 'react-native'
+import { View, Text, Image, TouchableOpacity, StatusBar, StyleSheet, ScrollView, Alert, ToastAndroid } from 'react-native'
 import React, { useState } from 'react'
 import { Colors } from '../../constants/Colors'
 import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import {LinearGradient} from 'expo-linear-gradient'
 import Button from '../Button'
+import { deleteDoc, doc } from 'firebase/firestore';
+import { db } from '../../configs/FireBaseConfig';
+import { useRouter } from 'expo-router';
+import { useUser } from '../../app/UserContext';
 
-export default function Intro({event}) {
+
+export default function Intro({event, eventID, userID}) {
   
+    const router = useRouter()
+    const {user} = useUser()
+    const onDelete = () =>{
+        Alert.alert("Você deseja excluir esse evento?", "Não será possível recuperá-lo depois!", [
+            {
+                text: 'Cancelar',
+                style: 'cancel'
+            },
+            {
+                text: 'Excluir',
+                style: 'destructive',
+                onPress: () => deleteEvent()
+            }
+    ])
+    }
+
+    const deleteEvent = async () => {
+        if (!eventID) {
+          console.error('ID do evento não está definido');
+          return;
+        }
+        console.log("Tentando excluir");
+        try {
+          await deleteDoc(doc(db, 'EventList', eventID));
+          router.back();
+          ToastAndroid.show("Evento excluído", ToastAndroid.LONG);
+        } catch (error) {
+          console.error('Erro ao excluir evento: ', error);
+        }
+      };
+
     return (
     <ScrollView
     style={{
@@ -83,6 +119,15 @@ export default function Intro({event}) {
                 fontSize: 35,
                 fontFamily: 'airbnbcereal-bold',
             }}>{event?.name}</Text>
+            
+            {user?.uid==userID &&
+            <TouchableOpacity
+                onPress={() => onDelete()}
+            >
+                <FontAwesome name="trash" size={24} color="red" />
+            </TouchableOpacity>
+            }
+            
 
         {/* DATA */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
@@ -182,3 +227,4 @@ export default function Intro({event}) {
     </ScrollView>
   )
 }
+

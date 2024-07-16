@@ -79,6 +79,8 @@ export default function Profile() {
         fontFamily: 'airbnbcereal-bold'
       }}>{user.displayName}</Text>}
 
+      <Text>{user?.uid}</Text>
+
 
     </View>
 

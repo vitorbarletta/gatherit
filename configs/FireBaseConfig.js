@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, setPersistence, browserLocalPersistence, onAuthStateChanged  } from "firebase/auth";
 import { getFirestore } from 'firebase/firestore'
+import { getStorage } from 'firebase/storage'
 
 const firebaseConfig = {
   apiKey: "AIzaSyDAg08UeKIAHcSLBkNUlyT6c1eqtvfk4n8",
@@ -15,6 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const storage = getStorage(app)
 
 
 // Observador de autenticação
@@ -26,6 +28,6 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-export {auth, db, app}
+export {auth, db, app, storage}
 
 
