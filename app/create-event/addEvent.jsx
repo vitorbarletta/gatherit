@@ -52,6 +52,7 @@ export default function AddEvent() {
     }
 
     const saveEventDetail = async (imageURL) => {
+      console.log(user)
       await setDoc(doc(db, 'EventList', Date.now().toString()), {
         name: name,
         adress: adress,
@@ -59,11 +60,19 @@ export default function AddEvent() {
         date: date,
         userId: user?.uid,
         userEmail: user?.email,
-        imageURL: imageURL
+        imageURL: imageURL,
+        username: user?.username,
+        userFullName: user?.fullname,
+        userProfilePicture: user?.profilePicture,
+        participants: [
+          {
+            uid: user?.uid,
+            username: user?.username
+          }
+        ]
       })
       setLoading(false)
-      ToastAndroid.show("Novo evento adicionado", ToastAndroid.LONG)
-      router.back()
+      router.push('/extra-pages/EventSucess')
     }
 
     return (

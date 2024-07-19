@@ -4,12 +4,15 @@ import { Colors } from '@/constants/Colors'
 import { useRouter } from 'expo-router'
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import {auth} from './../../../configs/FireBaseConfig'
+import { useUser } from '@/app/UserContext';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../../configs/FireBaseConfig';
 
 
 export default function SignIn() {
   
   const router = useRouter()
-  
+  const userVerification = useUser()
   const [email,setEmail] = useState()
   const [password,setPassword] = useState()
 
@@ -21,12 +24,20 @@ export default function SignIn() {
     }
 
     signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      // Signed in 
+    .then(async (userCredential) => {
+
       const user = userCredential.user;
-      console.log(user)
-      router.replace('/home')
-      // ...
+      const userDocRef = doc(db, "Users", user.uid)
+      const userDocSnap = await getDoc(userDocRef)
+
+      if (userDocSnap.exists()){
+        router.replace('/home')
+        console.log("USUARIO NÃO TEM LOG NO BANCO")
+      } else {
+        router.replace('/auth/user-info')
+        console.log("USUARIO NÃO TEM LOG NO BANCO")
+      }
+
     })
     .catch((error) => {
       const errorCode = error.code;

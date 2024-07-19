@@ -9,25 +9,22 @@ export default function SignUp() {
   
   const router = useRouter()
   
-  const [fullname,setFullname] = useState()
+  
   const [email,setEmail] = useState()
   const [password,setPassword] = useState()
 
   const OnCreateAccount = () =>{
 
-    if (!email && !password && !fullname){
+    if (!email && !password){
       ToastAndroid.show('Por favor, insira as credenciais corretamente', ToastAndroid.BOTTOM)
       return
     }
 
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Signed up 
         const user = userCredential.user;
         console.log(user);
-        router.replace('/myevent')
-
-        // ...
+        router.replace('/auth/user-info')
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -62,11 +59,6 @@ export default function SignUp() {
           marginTop: 40,
           marginBottom: 13
         }}>Registrar</Text>
-
-        <TextInput 
-        placeholder='Nome Completo' 
-        style={styles.input} 
-        onChangeText={(value)=>setFullname(value)}/>
 
 
         <TextInput 

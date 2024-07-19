@@ -7,29 +7,40 @@ import { router } from 'expo-router'
 import { useUser } from '../UserContext'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db } from '../../configs/FireBaseConfig'
-import PopularEventCard from '../../components/PopularEventCard'
+import MyEventsCard from '../../components/MyEventsCard'
+import { FontAwesome6 } from '@expo/vector-icons';
 
 export default function MyEvent() {
   const {user} = useUser()
   const [userEvent, setUserEvent] = useState([])
   const [loading, setLoading] = useState(false)
 
-  useEffect(()=>{
-    GetUserEvents()
-  }, [])
+  useEffect(() => {
+    if (user?.uid) {
+      GetUserEvents();
+    }
+  }, [user]);
 
-  const GetUserEvents = async () =>{
-    setLoading(true)
-    setUserEvent([])
-    const q = query(collection(db, 'EventList'), where('userId', '==', user?.uid))
+  const GetUserEvents = async () => {
+    if (!user?.uid) return; // Adicionar verificação para user.uid
+    setLoading(true);
+    setUserEvent([]);
+    const q = query(collection(db, 'EventList'), where('userId', '==', user.uid));
 
-    const querySnapshot = await getDocs(q)
-    querySnapshot.forEach((doc) => {
-      setUserEvent(prev => [...prev, {id:doc.id, ...doc.data()}])
-    })
-    setLoading(false)
-    console.log(userEvent.length)
-  }
+    try {
+      const querySnapshot = await getDocs(q);
+      const events = [];
+      querySnapshot.forEach((doc) => {
+        events.push({ id: doc.id, ...doc.data() });
+      });
+      setUserEvent(events);
+    } catch (error) {
+      console.error("Erro ao buscar eventos do usuário:", error);
+    } finally {
+      setLoading(false);
+      console.log(userEvent.length);
+    }
+  };
 
   return (
     <View style={{
@@ -38,31 +49,51 @@ export default function MyEvent() {
       backgroundColor: Colors.white,
       height: '100%'
     }}>
-      <Text style={{
-        fontSize: 24,
-        fontFamily: 'airbnbcereal-bold'
-      }}>Meus Eventos</Text>
+      <View style={{
+        flexDirection: 'row',
+        alignContent: 'center',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <Text style={{
+          fontSize: 24,
+          fontFamily: 'airbnbcereal-bold'
+        }}>Meus Eventos</Text>
+
+        <TouchableOpacity 
+        onPress={()=> router.push('/create-event/addEvent')}
+        >
+          <View style={{ position: 'relative', width: 52, height: 52, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: '#5669ff',
+            opacity: 0.12,
+            borderRadius: 15,
+            }} />
+            <FontAwesome6 name="add" size={24} color="black" />    
+          </View>
+        </TouchableOpacity>
+      </View>
     
       {userEvent?.length==0?
       <StartEventCard/>:
       <FlatList
-      style={{height: '100%'}}
+      style={{}}
+      showsVerticalScrollIndicator={false}
         data={userEvent}
         onRefresh={GetUserEvents}
         refreshing={loading}
         renderItem={({item, index}) => (
-          <PopularEventCard event={item} key={index}/>
+          <MyEventsCard event={item} key={index}/>
         )}
       />  
       }
 
-      <TouchableOpacity 
-    onPress={()=> router.push('/create-event/addEvent')}
-    style={{
-        marginTop: 200
-    }}>
-      <Button text={'NOVO EVENTO'}/>
-    </TouchableOpacity>
+     
     
     
     </View>

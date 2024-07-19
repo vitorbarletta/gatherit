@@ -22,7 +22,7 @@ export default function Header() {
             fontSize: 24,
             fontFamily: 'airbnbcereal-bold',
             color: Colors.white
-        }}>Olá, {user?.displayName}</Text>
+        }}>Olá, {user?.username}</Text>
 
         <View style={{
             display: 'flex',

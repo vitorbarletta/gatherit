@@ -1,11 +1,11 @@
 import { View, Text, Image, TouchableOpacity, StatusBar, StyleSheet, ScrollView, Alert, ToastAndroid } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Colors } from '../../constants/Colors'
 import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import {LinearGradient} from 'expo-linear-gradient'
 import Button from '../Button'
-import { deleteDoc, doc } from 'firebase/firestore';
+import { arrayUnion, collection, deleteDoc, doc, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { db } from '../../configs/FireBaseConfig';
 import { useRouter } from 'expo-router';
 import { useUser } from '../../app/UserContext';
@@ -28,6 +28,29 @@ export default function Intro({event, eventID, userID}) {
             }
     ])
     }
+    const [participantState, setParticipantState] = useState(false)
+
+    useEffect(()=>{
+        participantsVerification()
+    }, [])
+
+
+    const participantsVerification = async () => {
+        const eventRef = doc(db, 'EventList', eventID);
+        const eventDoc = await getDoc(eventRef);
+        if (eventDoc.exists()) {
+            const eventData = eventDoc.data();
+            const participants = eventData.participants || [];
+      
+            const isParticipating = participants.some(participant => participant.uid === user.uid);
+            
+            if (isParticipating) {
+              setParticipantState(true)
+              return;
+            }
+        }      
+    };
+
 
     const deleteEvent = async () => {
         if (!eventID) {
@@ -43,6 +66,28 @@ export default function Intro({event, eventID, userID}) {
           console.error('Erro ao excluir evento: ', error);
         }
       };
+
+    const joinEvent = async () => {
+        try{
+            console.log(user?.uid)
+            console.log(user)
+            console.log(user?.username)
+            const eventRef = doc(db, 'EventList', eventID)
+            const userInfo = {
+            uid: user?.uid,
+            username: user?.username
+        }
+
+            await updateDoc(eventRef, {
+                participants: arrayUnion(userInfo)
+            })
+            console.log("SE JUNTOU AO EVENTO " + eventID + " COM SUCESSO")
+            ToastAndroid.show("Você se juntou ao evento!", ToastAndroid.LONG);
+        } catch (error) {
+            console.log("Erro ao participar o evento" + error)
+        }
+
+    }
 
     return (
     <ScrollView
@@ -92,7 +137,7 @@ export default function Intro({event, eventID, userID}) {
                     fontSize: 15,
                     color: Colors.darkBlue,
 
-                }}>+20 confirmados</Text>
+                }}>+{event?.participants.length} confirmados</Text>
 
                 <TouchableOpacity style={{
                     backgroundColor: Colors.blue,
@@ -190,13 +235,18 @@ export default function Intro({event, eventID, userID}) {
                 opacity: 0.12,
                 borderRadius: 15,
                 }} />
-                <FontAwesome name="photo" size={24} color={Colors.blue} />
+                {event?.userProfilePicture ? 
+                <Image
+                source={{uri: event?.userProfilePicture}}
+                style={{height: 52, width: 52, borderRadius: 15}}
+                ></Image>: <FontAwesome name="photo" size={24} color={Colors.blue} />}
+                
             </View>
 
 
             <View style={{ marginLeft: 10, flexDirection: 'row' }}>
                 <View>
-                    <Text style={{ fontSize: 16, color: Colors.black, fontFamily: 'airbnbcereal-bold', marginTop: -5, marginBottom: 5 }}>Vitor Francisco</Text>
+                    <Text style={{ fontSize: 16, color: Colors.black, fontFamily: 'airbnbcereal-bold', marginTop: -5, marginBottom: 5 }}>{event?.username}</Text>
                     <Text style={{ fontSize: 14, color: Colors.gray, fontFamily: 'airbnbcereal-bold'  }}>Organizador</Text>
                 </View>
             </View>
@@ -220,9 +270,23 @@ export default function Intro({event, eventID, userID}) {
 
         </View>
 
-        <TouchableOpacity style={{paddingLeft: 50, paddingRight: 50}}>
+        {!participantState ?
+        
+        <TouchableOpacity style={{paddingLeft: 50, paddingRight: 50}}
+        onPress={()=> joinEvent()}
+        >
             <Button text={"PARTICIPAR"}/>
         </TouchableOpacity>
+         
+        : 
+        
+        <TouchableOpacity style={{paddingLeft: 50, paddingRight: 50}}
+        onPress={()=> console.log('Presença desconfirmada com sucesso')}
+        >
+            <Button text={"DESCONFIRMAR PRESENÇA"}/>
+        </TouchableOpacity>}
+
+        
 
     </ScrollView>
   )
