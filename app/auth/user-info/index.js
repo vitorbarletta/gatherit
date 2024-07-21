@@ -1,4 +1,4 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, ToastAndroid} from 'react-native'
+import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, ToastAndroid, ScrollView} from 'react-native'
 import React, { useState } from 'react'
 import { Colors } from '@/constants/Colors'
 import { useRouter, useLocalSearchParams  } from 'expo-router'
@@ -80,7 +80,7 @@ const router = useRouter();
   };
 
   return (
-    <View style={{
+    <ScrollView style={{
       height: '100%',
       backgroundColor: Colors.white
     }}>
@@ -132,18 +132,21 @@ const router = useRouter();
         <TextInput 
         placeholder='Nome Completo' 
         style={styles.input} 
+        placeholderTextColor={Colors.gray}
         onChangeText={(value)=>setFullname(value)}/>
 
 
         <TextInput 
         placeholder='Username' 
+        placeholderTextColor={Colors.gray}
         style={styles.input}
         onChangeText={(value)=>setUsername(value)}/>
 
 
         <TextInput 
         secureTextEntry={false} 
-        placeholder='Sua Biografia' 
+        placeholder='Sua Biografia'
+        placeholderTextColor={Colors.gray} 
         style={styles.input}
         onChangeText={(value)=>setUserBio(value)}/>
 
@@ -163,7 +166,7 @@ const router = useRouter();
       </View>
       
       </View>
-    </View>
+    </ScrollView>
   )
 }
 

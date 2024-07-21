@@ -11,6 +11,7 @@ export default function PopularEventCard({event}) {
     return (
 
     <TouchableOpacity
+    activeOpacity={1}
     onPress={() => router.push('/eventdetail/'+event.id)}
     >
         <View style={{
@@ -58,7 +59,7 @@ export default function PopularEventCard({event}) {
                         fontSize: 12,
                         color: Colors.darkBlue,
 
-                    }}>+20 confirmados</Text>
+                    }}>+{event?.participants.length} confirmados</Text>
                 </View>
 
                 <View style={{

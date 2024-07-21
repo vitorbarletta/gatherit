@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function Header() {
     const {user} = useUser()
-  
+    console.log(user)
     return (
     <View style={{
         width: '100%',
@@ -36,7 +36,7 @@ export default function Header() {
             marginBottom: 10
         }}>
             <Ionicons name="search" size={24} color={Colors.black} />
-            <TextInput placeholder='Pesquisar...' style={{
+            <TextInput placeholderTextColor={Colors.gray} placeholder='Pesquisar...' style={{
                fontFamily: 'airbnbcereal-medium',
                fontSize: 15
             }}></TextInput>

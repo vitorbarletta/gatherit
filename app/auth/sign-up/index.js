@@ -62,7 +62,8 @@ export default function SignUp() {
 
 
         <TextInput 
-        placeholder='abc@email.com' 
+        placeholder='abc@email.com'
+        placeholderTextColor={Colors.gray}
         style={styles.input}
         onChangeText={(value)=>setEmail(value)}/>
 
@@ -70,6 +71,7 @@ export default function SignUp() {
         <TextInput 
         secureTextEntry={true} 
         placeholder='Sua senha' 
+        placeholderTextColor={Colors.gray}
         style={styles.input}
         onChangeText={(value)=>setPassword(value)}/>
 

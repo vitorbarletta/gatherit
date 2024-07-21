@@ -25,17 +25,19 @@ export default function Button({text}) {
         flexDirection: 'row'
       }}>{text}</Text>
 
-        <AntDesign name="arrowright" size={24} color="white" style={{
-        backgroundColor: '#3D56F0',
-        marginLeft: 20,
-        marginRight: -19,
-        borderRadius: 12, // metade do tamanho do ícone para um círculo perfeito
-        width: 25,
-        height: 25,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }} />
+      <View style={{
+          backgroundColor: '#3D56F0',
+          marginLeft: 20,
+          marginRight: -19,
+          borderRadius: 12, 
+          width: 25,
+          height: 25,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <AntDesign name="arrowright" size={22} color="white"  />
+      </View>
 
     </View>
   )

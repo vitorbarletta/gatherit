@@ -4,14 +4,14 @@ import { collection, query, getDocs, limit } from 'firebase/firestore';
 import { db } from '../configs/FireBaseConfig';
 import PopularEventCard from './PopularEventCard';
 
-export default function PopularEvents() {
+export default function PopularEvents({ refreshTrigger }) {
     
     const [eventList, setEventList] = useState([])
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
-        GetEventList()
-    }, [])
+      GetEventList();
+    }, [refreshTrigger]);
 
     const GetEventList = async () => {
         setLoading(true)
@@ -19,7 +19,6 @@ export default function PopularEvents() {
         const q = query(collection(db, 'EventList'), limit(10))
         const querySnapshot = await getDocs(q)
         querySnapshot.forEach((doc) => {
-            console.log(doc.data())
             setEventList(prev => [...prev, {id:doc?.id,...doc.data()}])
         })
         setLoading(false)
@@ -34,20 +33,35 @@ export default function PopularEvents() {
         fontSize: 20,
         fontFamily: 'airbnbcereal-bold'
       }}>Eventos em Alta</Text>
-
-      <FlatList
-      data={eventList}
-      horizontal={true}
-      onRefresh={GetEventList}
-      refreshing={loading}               
-      showsHorizontalScrollIndicator={false}
-      renderItem={({item, index}) => (
-        <PopularEventCard
-        key={index}
-        event={item}
+      <View style={styles.container}>  
+        <FlatList
+        data={eventList}
+        bounces={false}
+        bouncesZoom={false}
+        horizontal={true}
+        onRefresh={GetEventList}
+        refreshing={loading}
+        contentContainerStyle={styles.flatListContainer}      
+        showsHorizontalScrollIndicator={false}
+        renderItem={({item, index}) => (
+          <PopularEventCard
+          key={index}
+          event={item}
+          />
+        )}
         />
-      )}
-      />
+      </View>
     </View>
   )
 }
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',  // Center the FlatList vertically
+    alignItems: 'center',  // Center the FlatList horizontally
+  },
+  flatListContainer: {
+    alignItems: 'center',  // Center the items vertically within the FlatList
+  },
+ 
+});

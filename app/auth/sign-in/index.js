@@ -7,6 +7,7 @@ import {auth} from './../../../configs/FireBaseConfig'
 import { useUser } from '@/app/UserContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../../configs/FireBaseConfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default function SignIn() {
@@ -15,6 +16,9 @@ export default function SignIn() {
   const userVerification = useUser()
   const [email,setEmail] = useState()
   const [password,setPassword] = useState()
+  const {setUser} = useUser()
+
+  
 
   const onSignIn = () =>{
 
@@ -30,9 +34,18 @@ export default function SignIn() {
       const userDocRef = doc(db, "Users", user.uid)
       const userDocSnap = await getDoc(userDocRef)
 
-      if (userDocSnap.exists()){
-        router.replace('/home')
-        console.log("USUARIO NÃO TEM LOG NO BANCO")
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        const userDataComplete = {
+          uid: user.uid,
+          email: user.email,
+          ...userData,
+        };
+
+        setUser(userDataComplete);
+        await AsyncStorage.setItem('@user', JSON.stringify(userDataComplete));
+        router.replace('/home');
+        console.log("Usuário encontrado no banco de dados.");
       } else {
         router.replace('/auth/user-info')
         console.log("USUARIO NÃO TEM LOG NO BANCO")
@@ -85,13 +98,15 @@ export default function SignIn() {
 
         <TextInput
         onChangeText={(value)=>setEmail(value)}
-        placeholder='abc@email.com' 
+        placeholder='abc@email.com'
+        placeholderTextColor={Colors.gray}
         style={styles.input}></TextInput>
 
         <TextInput 
         onChangeText={(value)=>setPassword(value)}
         secureTextEntry={true} 
         placeholder='Sua senha aqui' 
+        placeholderTextColor={Colors.gray}
         style={styles.input}></TextInput>
 
         <TouchableOpacity 

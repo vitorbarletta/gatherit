@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useUser } from '../UserContext';
 import { Colors } from '../../constants/Colors';
+import { Feather } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 export default function Profile() {
   const { user } = useUser();
@@ -15,17 +17,64 @@ export default function Profile() {
         fontFamily: 'airbnbcereal-bold'
       }}>Seu Perfil</Text>
 
+      <View style={{
+        justifyContent: 'center',
+        display: 'flex',
+        alignItems: 'center'
+      }}>
+        <Image 
+        style={styles.profileImage}
+        source={{uri: user?.profilePicture}}>
+        </Image>
 
-      <Text>{user?.uid}</Text>
+        <Text
+          style={{
+            fontSize: 24,
+            fontFamily: 'airbnbcereal-bold'
+          }}
+        >{user?.username}</Text>
 
-      <Image 
-      style={{height: 100, width: 100}}
-      source={{uri: user?.profilePicture}}></Image>
+        <View style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 30,
+          marginTop: 15
+        }}>
+          <View>
+            <Text style={styles.followersNumber}>350</Text>
+            <Text style={styles.followersText}>Seguindo</Text>
+          </View>
 
-      <TouchableOpacity onPress={() => console.log(user)}>
+          <View>
+            <Text style={styles.followersNumber}>330</Text>
+            <Text style={styles.followersText}>Seguidores</Text>
+          </View>
+        </View>
 
-      <Text>TESTANDO BOTÃO PARA APARECER DADOS</Text></TouchableOpacity>
+        <View style={{
+          display: 'flex', 
+          flexDirection: 'row', 
+          alignItems: 'center', 
+          borderWidth: 2,
+          borderColor: Colors.blue,
+          paddingTop: 10,
+          paddingBottom: 10,
+          paddingLeft: 15,
+          paddingRight: 15,
+          borderRadius: 10,
+          marginTop: 20,
+          gap: 10
+          }}>
+          <Feather name="edit" size={24} color={Colors.blue} />
+          <Text style={{fontSize: 16, fontFamily: 'airbnbcereal-bold', color: Colors.blue}}>Editar Perfil</Text>
+        </View>
 
+        <TouchableOpacity onPress={() => router.replace('/auth/sign-in')} style={{borderColor: Colors.black, borderWidth: 1, margin: 10, padding: 10}}>
+          <Text>Botão LOGIN</Text>
+        </TouchableOpacity>
+
+      </View>
 
     </View>
 
@@ -39,19 +88,25 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     height: '100%'
   },
-  input: {
-    width: '100%',
-    padding: 10,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-  },
+  
   profileImage: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    marginTop: 10,
+    marginTop: 30,
+    marginBottom: 15,
     backgroundColor: '#000'
   },
+
+  followersNumber: {
+    textAlign: 'center',
+    fontSize: 17,
+    fontFamily: 'airbnbcereal-bold'
+  },
+
+  followersText:{
+    textAlign: 'center',
+    fontSize: 16,
+    fontFamily: 'airbnbcereal-book'
+  }
 });

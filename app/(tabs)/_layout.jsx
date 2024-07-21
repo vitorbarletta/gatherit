@@ -9,6 +9,7 @@ import SignUp from '../auth/sign-up/index'
 import { UserProvider } from '../UserContext';
 import { Ionicons } from '@expo/vector-icons';
 
+
 export default function TabLayout() {
   
   return (
@@ -19,8 +20,6 @@ export default function TabLayout() {
       tabBarLabelStyle: {
         fontSize: 12, 
         fontFamily: 'airbnbcereal-bold',
-        marginTop: -15,
-        marginBottom: 15
       },
       tabBarStyle:{
         height: 80

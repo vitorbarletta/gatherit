@@ -1,4 +1,4 @@
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ToastAndroid, ActivityIndicator } from 'react-native'
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ToastAndroid, ActivityIndicator, ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { Colors } from '../../constants/Colors'
 import { Ionicons } from '@expo/vector-icons';
@@ -10,7 +10,11 @@ import {db, storage} from '../../configs/FireBaseConfig'
 import { doc, setDoc } from 'firebase/firestore';
 import { useUser } from '../UserContext';
 import { useRouter } from 'expo-router';
-
+import CalendarPicker from 'react-native-calendar-picker';
+import moment from 'moment';
+import {format, parseISO} from 'date-fns'
+import { ptBR } from 'date-fns/locale';
+import AddEventLoading from '../extra-pages/AddEventLoading'
 
 export default function AddEvent() {
     const [image, setImage] = useState()
@@ -22,6 +26,25 @@ export default function AddEvent() {
     const [loading, setLoading] = useState(false)
     const router = useRouter()
 
+    const months = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+    
+    const weekdays = [
+      'Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'
+    ];
+    
+
+    const onDateChange = (date) => {
+      const isoDate = date.toISOString();
+
+      const formattedDate = format(parseISO(isoDate), "eeee, d 'de' MMMM 'de' yyyy", { locale: ptBR });
+
+      console.log(formattedDate);
+  
+      setDate(formattedDate);
+    };
 
     const onImagePick = async () =>{
       let result = await ImagePicker.launchImageLibraryAsync({
@@ -32,23 +55,21 @@ export default function AddEvent() {
         console.log(result)
     }
 
-    const onAddNewEvent = async () =>{
-      setLoading(true)
-      const fileName = Date.now().toString()+".jpg"
-      const resp = await fetch(image)
-      const blob = await resp.blob()
-
-      const imageRef = ref(storage, 'event-images/'+fileName)
-
-      uploadBytes(imageRef, blob).then((snapshot) =>{
-        console.log("File uploaded...")
-      }).then(resp => {
-        getDownloadURL(imageRef).then(async(downloadURL) =>{
-          console.log(downloadURL)
-          saveEventDetail(downloadURL)
-        })
-      })
-      setLoading(false)
+    const onAddNewEvent = async () => {
+      setLoading(true); 
+  
+      try {
+        const fileName = Date.now().toString() + ".jpg";
+        const resp = await fetch(image);
+        const blob = await resp.blob();
+        const imageRef = ref(storage, 'event-images/' + fileName);
+  
+        await uploadBytes(imageRef, blob);
+        const downloadURL = await getDownloadURL(imageRef);
+        await saveEventDetail(downloadURL);
+      } catch (error) {
+        console.error("Error adding event: ", error);
+      } 
     }
 
     const saveEventDetail = async (imageURL) => {
@@ -67,16 +88,23 @@ export default function AddEvent() {
         participants: [
           {
             uid: user?.uid,
-            username: user?.username
+            username: user?.username,
+            userPicture: user?.profilePicture
           }
         ]
       })
       setLoading(false)
       router.push('/extra-pages/EventSucess')
+      
+    }
+
+    if (loading){
+      return <AddEventLoading />
     }
 
     return (
-    <View style={{
+    <ScrollView
+    style={{
       padding: 25,
       paddingTop: 65,
       backgroundColor: Colors.white,
@@ -117,33 +145,47 @@ export default function AddEvent() {
 
         <TextInput
           onChangeText={(value)=>setName(value)}
-          placeholder='Nome*' 
+          placeholder='Nome*'
+          placeholderTextColor={Colors.gray}
           style={styles.input}></TextInput>
 
         <TextInput
           onChangeText={(value)=>setAdress(value)}
           placeholder='Endereço*' 
+          placeholderTextColor={Colors.gray}
           style={styles.input}></TextInput>
 
         <TextInput
           onChangeText={(value)=>setAbout(value)}
           placeholder='Descrição*' 
+          placeholderTextColor={Colors.gray}
           style={styles.input}></TextInput>
+          
+        <View style={{marginBottom: 20}}>
+          <CalendarPicker
+          onDateChange={onDateChange}
+          allowRangeSelection={false}
+          minDate={new Date()}
+          selectedDayStyle={{backgroundColor: Colors.blue}}
+          selectedDayTextColor={Colors.white}
+          selectYearTitle='Selecione o ano'
+          selectMonthTitle='Selecione o mês em '
+          textStyle={{fontFamily: 'airbnbcereal-bold'}}
+          height={360}
+          width={360}
+          months={months}
+          weekdays={weekdays}
+          nextTitle='Próximo'
+          previousTitle='Anterior'
+          />
+        </View>
 
-        <TextInput
-          onChangeText={(value)=>setDate(value)}
-          placeholder='Data*' 
-          style={styles.input}></TextInput>
-
-        <TouchableOpacity disabled={loading}  style={{paddingLeft: 50, paddingRight: 50}}
-          onPress={() => onAddNewEvent()}
-        >
-          {loading?<ActivityIndicator size={'large'} color={Colors.blue} />:<Button text={"ADICIONAR NOVO EVENTO"}/>}
-
-        </TouchableOpacity>
+        <TouchableOpacity disabled={loading} style={{ paddingLeft: 50, paddingRight: 50, paddingBottom: 100 }} onPress={() => onAddNewEvent()}>
+         <Button text={"ADICIONAR"} />
+      </TouchableOpacity>
       </View>
 
-    </View>
+    </ScrollView>
   )
 }
 

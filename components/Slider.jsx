@@ -1,50 +1,66 @@
-import { View, Text, FlatList, Image, StyleSheet } from 'react-native';
+import { View, FlatList, Image, StyleSheet, Text } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { collection, query, getDocs } from 'firebase/firestore';
 import { db } from '../configs/FireBaseConfig';
 
 export default function Slider() {
-    const [sliderList, setSliderList] = useState([]); // Inicializa com um array vazio
+    const [sliderList, setSliderList] = useState([]); 
+    const [error, setError] = useState(null); 
 
     useEffect(() => {
         GetSliderList();
     }, []);
 
     const GetSliderList = async () => {
-        const q = query(collection(db, 'Slider'));
-        const querySnapshot = await getDocs(q);
-        const images = [];
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            images.push(data);  // Adiciona os dados das imagens a uma lista
-        });
-        setSliderList(images);  // Atualiza o estado com a lista de imagens
+        try {
+            const q = query(collection(db, 'Slider'));
+            const querySnapshot = await getDocs(q);
+            const images = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                images.push(data);
+            });
+            setSliderList(images);
+        } catch (err) {
+            console.error("Erro ao buscar a lista de slides:", err);
+            setError(err.message);
+        }
     };
 
     return (
         <View>
-            <FlatList
-                data={sliderList}
-                horizontal={true}
-                showsHorizontalScrollIndicator={false}
-                style={{
-                  paddingLeft: 20,
-                  marginTop: 25
-                }}
-                renderItem={({ item }) => (
-                    <Image
-                        style={{
-                          width: 300,
-                          height: 160,
-                          borderRadius: 15,
-                          marginRight: 20
-                        }}
-                        source={{ uri: item.imageURL }} // Usa a URL da imagem
-                    />
-                )}
-                keyExtractor={(item) => item.imageURL} // Usa a URL da imagem como chave
-            />
+            {error ? (
+                <Text style={{ color: 'red' }}>{error}</Text>
+            ) : (
+                <FlatList
+                    data={sliderList}
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.flatList}
+                    renderItem={({ item }) => (
+                        <Image
+                            style={styles.image}
+                            source={{ uri: item.imageURL }}
+                            onError={(error) => console.log("Erro ao carregar a imagem:", error.nativeEvent.error)}
+                        />
+                    )}
+                    keyExtractor={(item) => item.imageURL} 
+                />
+            )}
         </View>
     );
 }
 
+const styles = StyleSheet.create({
+    flatList: {
+        paddingLeft: 20,
+        marginTop: 25,
+    },
+    image: {
+        width: 300,
+        height: 160,
+        borderRadius: 15,
+        marginRight: 20,
+        backgroundColor: '#eee',
+    },
+});

@@ -9,13 +9,13 @@ export default function Login() {
     
     return (
     <View style={{
-        backgroundColor: Colors.white
+        backgroundColor: Colors.white,
+        height: '100%'
     }}>
       <Image source={require('./../assets/images/login.jpg')}
         style={{
             width: '100%',
-            height: 600,
-            marginTop: '10%'
+            height: '60%',
         }}
       />
 
@@ -48,7 +48,7 @@ export default function Login() {
             marginTop: '20%'
         }}>
             <TouchableOpacity
-                onPress={()=> router.push('auth/sign-in')}
+                onPress={()=> router.replace('auth/sign-in')}
             >
                 <Text style={{
                     fontSize: 18,
@@ -60,7 +60,7 @@ export default function Login() {
             </TouchableOpacity>
 
             <TouchableOpacity
-                onPress={()=> router.push('auth/sign-in')}
+                onPress={()=> router.replace('auth/sign-in')}
             >
                 <Text style={{
                     fontSize: 18,
