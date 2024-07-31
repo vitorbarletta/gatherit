@@ -9,7 +9,7 @@ import { db } from '../../configs/FireBaseConfig';
 import { useRouter } from 'expo-router';
 import { useUser } from '../../app/UserContext';
 import EventParticipantsCard from '../EventParticipants/EventParticipantsCard';
-import AddEventLoading from '../../app/extra-pages/AddEventLoading'
+import EventPageLoading from '../../app/extra-pages/EventPageLoading';
 
 export default function Intro({ event, eventID, userID }) {
   const router = useRouter();
@@ -59,9 +59,7 @@ export default function Intro({ event, eventID, userID }) {
     }
   };
 
-  if (loading){
-    return <AddEventLoading />
-  }
+  
 
   const participantsVerification = async () => {
     const eventRef = doc(db, 'EventList', eventID);
@@ -81,9 +79,10 @@ export default function Intro({ event, eventID, userID }) {
       return;
     }
     try {
+      setLoading(true)
       await deleteDoc(doc(db, 'EventList', eventID));
-      router.back();
-      ToastAndroid.show("Evento excluído", ToastAndroid.LONG);
+      setLoading(false)
+      router.push('/extra-pages/DeletedEventSucess')
     } catch (error) {
       console.error('Erro ao excluir evento: ', error);
     }
@@ -136,6 +135,10 @@ export default function Intro({ event, eventID, userID }) {
             <FontAwesome name="trash" size={24} color="red" />
           </TouchableOpacity>
         }
+
+        {/* <View style={{backgroundColor: Colors.gray, opacity: 0.1, width: '100%', height: 1}}></View> */}
+
+
         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20, width: '100%' }}>
           <View style={{ position: 'relative', width: 52, height: 52, justifyContent: 'center', alignItems: 'center' }}>
             <View style={{
@@ -164,7 +167,7 @@ export default function Intro({ event, eventID, userID }) {
             </Text>
           </View>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20, width: '100%' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
           <View style={{ position: 'relative', width: 52, height: 52, justifyContent: 'center', alignItems: 'center' }}>
             <View style={{
               position: 'absolute',
@@ -183,7 +186,7 @@ export default function Intro({ event, eventID, userID }) {
             }} />
             <Ionicons name="location-sharp" size={24} color={Colors.blue} />
           </View>
-          <View style={{ marginLeft: 10 }}>
+          <View style={{ marginLeft: 10, paddingRight: 30}}>
             <Text style={{ fontSize: 16, color: Colors.black, fontFamily: 'airbnbcereal-bold', marginTop: -5, marginBottom: 5 }}>
               {event?.adress}
             </Text>
@@ -257,13 +260,15 @@ export default function Intro({ event, eventID, userID }) {
         : 
         
         <TouchableOpacity style={{paddingLeft: 50, paddingRight: 50}}
-        onPress={()=> console.log(user?.profilePicture)}
+        onPress={()=> setLoading(true)}
         >
             <Button text={"CANCELAR PRESENÇA"}/>
         </TouchableOpacity>}
     </View>
   )
-
+  if (loading){
+    return <EventPageLoading  />
+  }
   return (
     <FlatList
       ListHeaderComponent={renderHeader}

@@ -19,7 +19,11 @@ export default function MyEventsCard({event}) {
             borderRadius: 18,
             margin: 10,
             padding: 10,
-            elevation: 5, // Para Android
+            shadowColor: '#000', 
+            shadowOffset: { width: 0, height: 2 }, 
+            shadowOpacity: 0.25, 
+            shadowRadius: 3.84, 
+            elevation: 5, 
         }}>
             <Image
                 source={{uri: event?.imageURL}}

@@ -2,6 +2,12 @@ import { initializeApp } from "firebase/app";
 import { getAuth, setPersistence, browserLocalPersistence, onAuthStateChanged  } from "firebase/auth";
 import { getFirestore } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
+import { LogBox } from "react-native";
+
+LogBox.ignoreLogs([
+  '@firebase/auth'
+]);
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyDAg08UeKIAHcSLBkNUlyT6c1eqtvfk4n8",
