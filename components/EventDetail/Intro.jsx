@@ -10,6 +10,8 @@ import { useRouter } from 'expo-router';
 import { useUser } from '../../app/UserContext';
 import EventParticipantsCard from '../EventParticipants/EventParticipantsCard';
 import EventPageLoading from '../../app/extra-pages/EventPageLoading';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+
 
 export default function Intro({ event, eventID, userID }) {
   const router = useRouter();
@@ -127,17 +129,40 @@ export default function Intro({ event, eventID, userID }) {
 
 
       <View style={{ marginTop: '5%', alignSelf: 'flex-start', padding: 30, width: '100%' }}>
-        <Text style={{ color: Colors.black, fontSize: 35, fontFamily: 'airbnbcereal-bold' }}>
-          {event?.name}
-        </Text>
-        {user?.uid === userID &&
-          <TouchableOpacity onPress={() => onDelete()}>
-            <FontAwesome name="trash" size={24} color="red" />
-          </TouchableOpacity>
-        }
+        
+        <View style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+          
+        }}>
+          <Text style={{ color: Colors.black, fontSize: 27, fontFamily: 'airbnbcereal-bold', maxWidth:350}}>
+            {event?.name}
+          </Text>
 
-        {/* <View style={{backgroundColor: Colors.gray, opacity: 0.1, width: '100%', height: 1}}></View> */}
+          <View style={{
+            display: 'flex',
+            flexDirection:'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 10
+          }}>
+            {user?.uid === userID &&
+              <TouchableOpacity onPress={() => onDelete()}>
+                <FontAwesome name="trash" size={24} color="red" />
+              </TouchableOpacity>
+            }
 
+            <TouchableOpacity>
+              <MaterialCommunityIcons name="cards-heart-outline" size={28} color="black" />
+            </TouchableOpacity>
+          </View>
+          
+
+        </View>
+        
+        
 
         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20, width: '100%' }}>
           <View style={{ position: 'relative', width: 52, height: 52, justifyContent: 'center', alignItems: 'center' }}>
