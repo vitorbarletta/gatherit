@@ -8,6 +8,7 @@ import SignIn from '../auth/sign-in/index'
 import SignUp from '../auth/sign-up/index'
 import { UserProvider } from '../UserContext';
 import { Ionicons } from '@expo/vector-icons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 
 export default function TabLayout() {
@@ -42,10 +43,10 @@ export default function TabLayout() {
         />
 
         <Tabs.Screen 
-        name='discover'
+        name='myfavorites'
         options={{
-          tabBarLabel:'Explorar',
-          tabBarIcon:({color}) => <MaterialIcons name="explore" size={27} color={color} />
+          tabBarLabel:'Favoritos',
+          tabBarIcon:({color}) => <MaterialCommunityIcons name="cards-heart-outline" size={28} color={color} />
         }}
         />
 

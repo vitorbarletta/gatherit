@@ -91,7 +91,8 @@ export default function AddEvent() {
             username: user?.username,
             userPicture: user?.profilePicture
           }
-        ]
+        ],
+        favorites: []
       })
       setLoading(false)
       router.push('/extra-pages/EventSucess')

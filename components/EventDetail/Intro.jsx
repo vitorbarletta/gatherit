@@ -4,13 +4,14 @@ import { Colors } from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import Button from '../Button';
-import { arrayUnion, deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { arrayRemove, arrayUnion, deleteDoc, doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../../configs/FireBaseConfig';
 import { useRouter } from 'expo-router';
 import { useUser } from '../../app/UserContext';
 import EventParticipantsCard from '../EventParticipants/EventParticipantsCard';
 import EventPageLoading from '../../app/extra-pages/EventPageLoading';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 
 export default function Intro({ event, eventID, userID }) {
@@ -19,10 +20,24 @@ export default function Intro({ event, eventID, userID }) {
   const [participantState, setParticipantState] = useState(false);
   const [participantList, setParticipantList] = useState([]);
   const [loading, setLoading] = useState(false)
+  const [isFavorited, setIsFavorited] = useState(false)
 
   useEffect(() => {
     participantsVerification();
   }, []);
+
+  useEffect(() => {
+    const docRef = doc(db, 'EventList', eventID);
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const favorites = docSnap.data().favorites || [];
+        setIsFavorited(favorites.includes(user.uid));
+      }
+    });
+
+    return () => unsubscribe(); 
+  }, [eventID, user.uid]);
+
 
   
 
@@ -61,6 +76,28 @@ export default function Intro({ event, eventID, userID }) {
     }
   };
 
+  const favoriteEvent = async () =>{
+    try{
+      const favoriteRef = doc(db, 'EventList', eventID)
+
+      if (isFavorited){
+        await updateDoc(favoriteRef, {
+          favorites: arrayRemove(user.uid)
+        })
+        console.log("Evento removido dos favoritos com sucesso")
+      } else{
+        await updateDoc(favoriteRef, {
+          favorites: arrayUnion(user.uid)
+        })
+        console.log("Evento favoritado com sucesso")
+      }
+      
+    }
+    catch(error){
+      console.log("Erro ao adicionar nos favoritos: " + error)
+    }
+  }
+
   
 
   const participantsVerification = async () => {
@@ -93,42 +130,34 @@ export default function Intro({ event, eventID, userID }) {
   const renderHeader = () => (
     <View>
       <Image
-        style={{ width: '100%', height: 300 }}
+        style={{ width: '100%', height: 300, zIndex: 0}}
         source={{ uri: event?.imageURL }}
       />
+
       <View style={{
-        display: 'flex',
-        alignSelf: 'center',
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        padding: 13,
-        backgroundColor: Colors.white,
-        borderRadius: 30,
-        position: 'absolute',
-        top: 270,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-      }}>
-        <Image
-          style={{ transform: [{ scale: 1.2 }] }}
-          source={require('../../assets/images/logo_group.png')}
-        />
-        <Text style={{ fontFamily: 'airbnbcereal-bold', fontSize: 15, color: Colors.darkBlue }}>
-          +{event?.participants.length} confirmados
-        </Text>
-        <TouchableOpacity style={{ backgroundColor: Colors.blue, padding: 10, borderRadius: 7, marginLeft: 15 }}>
-          <Text style={{ color: Colors.white, fontFamily: 'airbnbcereal-bold', fontSize: 12 }}>
-            Convidar
-          </Text>
+          display: 'flex',
+          alignSelf: 'center',
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: Colors.white,
+          borderRadius: 30,
+          position: 'absolute',
+          top: 50,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.25,
+          shadowRadius: 3.84,
+          elevation: 5,
+          left: 30,
+          padding: 3,
+          zIndex: 1
+        }}>
+        <TouchableOpacity  onPress={() => router.back()}>
+        <AntDesign name="arrowleft" size={24} color={Colors.blue} />
         </TouchableOpacity>
       </View>
-
-
-      <View style={{ marginTop: '5%', alignSelf: 'flex-start', padding: 30, width: '100%' }}>
+      
+      <View style={{ alignSelf: 'flex-start', padding: 30, width: '100%' }}>
         
         <View style={{
           display: 'flex',
@@ -154,8 +183,12 @@ export default function Intro({ event, eventID, userID }) {
               </TouchableOpacity>
             }
 
-            <TouchableOpacity>
-              <MaterialCommunityIcons name="cards-heart-outline" size={28} color="black" />
+          <TouchableOpacity onPress={favoriteEvent}>
+                <MaterialCommunityIcons
+                  name={isFavorited ? "cards-heart" : "cards-heart-outline"}
+                  size={28}
+                  color={isFavorited ? "red" : "black"}
+                />
             </TouchableOpacity>
           </View>
           
@@ -184,7 +217,7 @@ export default function Intro({ event, eventID, userID }) {
             <Ionicons name="calendar" size={26} color={Colors.blue} />
           </View>
           <View style={{ marginLeft: 10 }}>
-            <Text style={{ fontSize: 16, color: Colors.black, fontFamily: 'airbnbcereal-bold', marginTop: -5, marginBottom: 5 }}>
+            <Text style={{ fontSize: 16, color: Colors.black, fontFamily: 'airbnbcereal-bold', marginTop: -5, marginBottom: 5 , marginLeft:-4}}>
               {event?.date.split(',')[1]}
             </Text>
             <Text style={{ fontSize: 14, color: Colors.gray, fontFamily: 'airbnbcereal-bold' }}>
