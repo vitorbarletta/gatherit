@@ -27,11 +27,12 @@ export default function PopularEvents({ refreshTrigger }) {
     return (
     <View style={{
         marginTop: 15,
-        padding: 15
+        padding: 13,
+        paddingRight: 0
     }}>
       <Text style={{
         fontSize: 20,
-        fontFamily: 'airbnbcereal-bold'
+        fontFamily: 'airbnbcereal-bold',
       }}>Eventos em Alta</Text>
       <View style={styles.container}>  
         <FlatList

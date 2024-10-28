@@ -1,11 +1,11 @@
 import { View, Text, TouchableOpacity, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { Colors } from '../../constants/Colors'
-import StartEventCard from '../../components/StartEventCard'
+import StartFavoriteCard from '../../components/StartFavoriteCard'
 import Button from '../../components/Button'
 import { router } from 'expo-router'
 import { useUser } from '../UserContext'
-import { collection, getDocs, query, where } from 'firebase/firestore'
+import { collection, getDocs, query, where, doc, onSnapshot } from 'firebase/firestore'
 import { db } from '../../configs/FireBaseConfig'
 import MyEventsCard from '../../components/MyEventsCard'
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -15,14 +15,25 @@ export default function MyFavorites() {
   const [userFavorite, setuserFavorite] = useState([])
   const [loading, setLoading] = useState(false)
 
+  // useEffect(() => {
+  //   if (user?.uid) {
+  //     GetUserFavorites();
+  //   }
+  // }, []);
+
   useEffect(() => {
-    if (user?.uid) {
-      GetUserFavorites();
-    }
-  }, []);
+    const unsubscribe = onSnapshot(doc(db, 'Users', user.uid), (doc) => {
+      const data = doc.data();
+      if (data && data.userFavorites) {
+        GetUserFavorites();
+      }
+    });
+
+    return () => unsubscribe();
+  }, [user.uid]);
 
   const GetUserFavorites = async () => {
-    if (!user?.uid) return; // Adicionar verificação para user.uid
+    if (!user?.uid) return;
     setLoading(true);
     setuserFavorite([]);
     const q = query(collection(db, 'EventList'), where('favorites', 'array-contains', user.uid));
@@ -62,7 +73,7 @@ export default function MyFavorites() {
       </View>
     
       {userFavorite?.length==0?
-      <StartEventCard/>:
+      <StartFavoriteCard/>:
       <FlatList
       style={{}}
       showsVerticalScrollIndicator={false}

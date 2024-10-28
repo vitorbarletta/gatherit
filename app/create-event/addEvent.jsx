@@ -25,6 +25,7 @@ export default function AddEvent() {
     const { user } = useUser();
     const [loading, setLoading] = useState(false)
     const router = useRouter()
+    const EventIdentification = Date.now().toString()
 
     const months = [
       'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -59,7 +60,7 @@ export default function AddEvent() {
       setLoading(true); 
   
       try {
-        const fileName = Date.now().toString() + ".jpg";
+        const fileName = EventIdentification + ".jpg";
         const resp = await fetch(image);
         const blob = await resp.blob();
         const imageRef = ref(storage, 'event-images/' + fileName);
@@ -67,6 +68,7 @@ export default function AddEvent() {
         await uploadBytes(imageRef, blob);
         const downloadURL = await getDownloadURL(imageRef);
         await saveEventDetail(downloadURL);
+        console.log("ID IMAGEM NO BANCO DE DADOS: " + fileName)
       } catch (error) {
         console.error("Error adding event: ", error);
       } 
@@ -74,7 +76,7 @@ export default function AddEvent() {
 
     const saveEventDetail = async (imageURL) => {
       console.log(user)
-      await setDoc(doc(db, 'EventList', Date.now().toString()), {
+      await setDoc(doc(db, 'EventList', EventIdentification), {
         name: name,
         adress: adress,
         about: about,
@@ -94,6 +96,7 @@ export default function AddEvent() {
         ],
         favorites: []
       })
+      console.log("ID DO EVENTO SALVO: " + EventIdentification)
       setLoading(false)
       router.push('/extra-pages/EventSucess')
       

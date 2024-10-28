@@ -12,12 +12,13 @@ import EventParticipantsCard from '../EventParticipants/EventParticipantsCard';
 import EventPageLoading from '../../app/extra-pages/EventPageLoading';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { getStorage, ref, deleteObject } from 'firebase/storage';
 
 
 export default function Intro({ event, eventID, userID }) {
   const router = useRouter();
   const { user } = useUser();
-  const [participantState, setParticipantState] = useState(false);
+  const [isParticipating, setIsParticipating] = useState(false);
   const [participantList, setParticipantList] = useState([]);
   const [loading, setLoading] = useState(false)
   const [isFavorited, setIsFavorited] = useState(false)
@@ -38,6 +39,24 @@ export default function Intro({ event, eventID, userID }) {
     return () => unsubscribe(); 
   }, [eventID, user.uid]);
 
+  useEffect(() => {
+    const docRef = doc(db, 'EventList', eventID);
+    
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const participants = docSnap.data().participants || [];
+
+        const isUserParticipating = participants.some(
+          participant => participant.uid === user.uid
+        );
+
+        setIsParticipating(isUserParticipating);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [eventID, user.uid]);
+
 
   
 
@@ -56,40 +75,74 @@ export default function Intro({ event, eventID, userID }) {
   };
 
   const joinEvent = async () => {
-    setLoading(true)
+    setLoading(true);
+    const docRef = doc(db, 'EventList', eventID);
+  
     try {
+      const docSnap = await getDoc(docRef);
       
-      const eventRef = doc(db, 'EventList', eventID);
-      const userInfo = {
-        uid: user?.uid,
-        username: user?.username,
-        userPicture: user?.profilePicture
-      };
-      await updateDoc(eventRef, {
-        participants: arrayUnion(userInfo)
-      });
-      setLoading(false)
-      router.push('/extra-pages/JoinEventSucess')
+      if (docSnap.exists()) {
+        const currentParticipants = docSnap.data().participants || [];
+  
+        if (isParticipating) {
+          const updatedParticipants = currentParticipants.filter(
+            participant => participant.uid !== user.uid
+          );
+          
+          await updateDoc(docRef, {
+            participants: updatedParticipants
+          });
+          
+          router.push('/extra-pages/ExitEventSucess');
+        } else {
+          const newParticipant = {
+            uid: user.uid,
+            username: user.username,
+            userPicture: user.profilePicture
+          };
+          
+          await updateDoc(docRef, {
+            participants: [...currentParticipants, newParticipant]
+          });
+          
+          router.push('/extra-pages/JoinEventSucess');
+        }
+      }
+      
+      setLoading(false);
+      
     } catch (error) {
-      console.log("Erro ao participar o evento: " + error);
-      setLoading(false)
+      console.log("Erro ao participar do evento: " + error);
+      setLoading(false);
     }
   };
 
   const favoriteEvent = async () =>{
     try{
       const favoriteRef = doc(db, 'EventList', eventID)
+      const userRef = doc(db, 'Users', user.uid);
 
       if (isFavorited){
         await updateDoc(favoriteRef, {
           favorites: arrayRemove(user.uid)
         })
         console.log("Evento removido dos favoritos com sucesso")
-      } else{
+
+        await updateDoc(userRef, {
+          userFavorites: arrayRemove(eventID)
+        })
+        console.log("Evento removido dos favoritos do usuário com sucesso")
+      } else {
+
         await updateDoc(favoriteRef, {
           favorites: arrayUnion(user.uid)
         })
         console.log("Evento favoritado com sucesso")
+
+        await updateDoc(userRef, {
+          userFavorites: arrayUnion(eventID)
+        });
+        console.log("Evento adicionado aos favoritos do usuário com sucesso");
       }
       
     }
@@ -97,6 +150,14 @@ export default function Intro({ event, eventID, userID }) {
       console.log("Erro ao adicionar nos favoritos: " + error)
     }
   }
+
+  const ownerEventVerification = () => {
+    if (event && event.userId === user.uid) {
+      return true;
+    } else {
+      return false;
+    }
+  };
 
   
 
@@ -107,8 +168,6 @@ export default function Intro({ event, eventID, userID }) {
       const eventData = eventDoc.data();
       const participants = eventData.participants || [];
       setParticipantList(participants);
-      const isParticipating = participants.some(participant => participant.uid === user.uid);
-      setParticipantState(isParticipating);
     }
   };
 
@@ -117,18 +176,28 @@ export default function Intro({ event, eventID, userID }) {
       console.error('ID do evento não está definido');
       return;
     }
+  
     try {
-      setLoading(true)
+      setLoading(true);
+  
       await deleteDoc(doc(db, 'EventList', eventID));
-      setLoading(false)
-      router.push('/extra-pages/DeletedEventSucess')
+  
+      const storage = getStorage();
+      const imageRef = ref(storage, `event-images/${eventID}.jpg`);
+      await deleteObject(imageRef);
+  
+      setLoading(false);
+      router.push('/extra-pages/DeletedEventSucess');
+      
     } catch (error) {
       console.error('Erro ao excluir evento: ', error);
+      setLoading(false);
     }
   };
 
   const renderHeader = () => (
     <View>
+
       <Image
         style={{ width: '100%', height: 300, zIndex: 0}}
         source={{ uri: event?.imageURL }}
@@ -156,7 +225,11 @@ export default function Intro({ event, eventID, userID }) {
         <AntDesign name="arrowleft" size={24} color={Colors.blue} />
         </TouchableOpacity>
       </View>
-      
+
+      {/* <TouchableOpacity onPress={()=>{console.log(ownerEventVerification())}}>
+        <Text>TESTE DE FUNÇÃO NO BOTÃO</Text>
+      </TouchableOpacity> */}
+
       <View style={{ alignSelf: 'flex-start', padding: 30, width: '100%' }}>
         
         <View style={{
@@ -306,23 +379,28 @@ export default function Intro({ event, eventID, userID }) {
   );
 
   const renderFooter = () => (
+    
     <View>
-        {!participantState ?
-        
-        <TouchableOpacity style={{position: 'relative',paddingLeft: 50, paddingRight: 50, bottom: '0%'}}
-        onPress={()=> joinEvent()}
-        >
-            <Button text={"PARTICIPAR"}/>
-        </TouchableOpacity>
-         
-        : 
-        
-        <TouchableOpacity style={{paddingLeft: 50, paddingRight: 50}}
-        onPress={()=> setLoading(true)}
-        >
-            <Button text={"CANCELAR PRESENÇA"}/>
-        </TouchableOpacity>}
+      {ownerEventVerification() ? null : (
+        !isParticipating ? (
+          <TouchableOpacity
+            style={{ position: 'relative', paddingLeft: 50, paddingRight: 50, bottom: '0%' }}
+            onPress={() => joinEvent()}
+          >
+            <Button text={"PARTICIPAR"} />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={{ paddingLeft: 50, paddingRight: 50 }}
+            onPress={() => joinEvent()}
+          >
+            <Button text={"CANCELAR PRESENÇA"} />
+          </TouchableOpacity>
+        )
+      )}
     </View>
+
+
   )
   if (loading){
     return <EventPageLoading  />
