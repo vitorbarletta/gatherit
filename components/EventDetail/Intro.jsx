@@ -167,7 +167,8 @@ export default function Intro({ event, eventID, userID }) {
     if (eventDoc.exists()) {
       const eventData = eventDoc.data();
       const participants = eventData.participants || [];
-      setParticipantList(participants);
+      const limitedParticipants = participants.slice(0,3)
+      setParticipantList(limitedParticipants);
     }
   };
 
@@ -368,12 +369,25 @@ export default function Intro({ event, eventID, userID }) {
             {event?.about}
           </Text>
         </View>
-        <View>
+        <View style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
             <Text style={{ fontFamily: 'airbnbcereal-bold', fontSize: 18, marginTop: 25, opacity: 0.84 }}>Participantes</Text>
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={() => router.push({
+                pathname: '/eventparticipants',
+                params: event
+              })}
+            >
+              <Text style={{ fontFamily: 'airbnbcereal-bold', fontSize: 13, marginTop: 25,  color: Colors.blue}}>Ver Todos</Text>
+            </TouchableOpacity>
+            
         </View>
 
-
-        
       </View>
     </View>
   );

@@ -77,6 +77,7 @@ export default function AddEvent() {
     const saveEventDetail = async (imageURL) => {
       console.log(user)
       await setDoc(doc(db, 'EventList', EventIdentification), {
+        id: EventIdentification,
         name: name,
         adress: adress,
         about: about,
@@ -87,13 +88,7 @@ export default function AddEvent() {
         username: user?.username,
         userFullName: user?.fullname,
         userProfilePicture: user?.profilePicture,
-        participants: [
-          {
-            uid: user?.uid,
-            username: user?.username,
-            userPicture: user?.profilePicture
-          }
-        ],
+        participants: [],
         favorites: []
       })
       console.log("ID DO EVENTO SALVO: " + EventIdentification)
