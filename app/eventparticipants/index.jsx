@@ -7,6 +7,7 @@ import { db } from '../../configs/FireBaseConfig';
 import { getStorage, ref, deleteObject } from 'firebase/storage';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import EventParticipantsCardFull from '../../components/EventParticipants/EventParticipantsCardFull';
+import StartParticipantsCard from '../../components/StartParticipantsCard';
 
 export default function EventParticipants() {
     
@@ -53,18 +54,22 @@ export default function EventParticipants() {
             }}>Participantes</Text>
         </View>
 
-        <FlatList
-        data={participantList}
-        bouncesZoom={true}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={(item, index) => item.uid || index.toString()}
-        renderItem={({ item }) => (
-            <View >
-                <EventParticipantsCardFull participant={item} />
-            </View>
-        )}
-        contentContainerStyle={{ marginTop: 20 }}
-        />
+        {participantList.length==0 ? <StartParticipantsCard/> : 
+            <FlatList
+            data={participantList}
+            bouncesZoom={true}
+            showsVerticalScrollIndicator={false}
+            keyExtractor={(item, index) => item.uid || index.toString()}
+            renderItem={({ item }) => (
+                <View >
+                    <EventParticipantsCardFull participant={item} />
+                </View>
+            )}
+            contentContainerStyle={{ marginTop: 20 }}
+            />
+        }
+
+        
         
     </View>
   )

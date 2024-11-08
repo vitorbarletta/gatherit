@@ -13,6 +13,7 @@ import EventPageLoading from '../../app/extra-pages/EventPageLoading';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { getStorage, ref, deleteObject } from 'firebase/storage';
+import Feather from '@expo/vector-icons/Feather';
 
 
 export default function Intro({ event, eventID, userID }) {
@@ -22,6 +23,7 @@ export default function Intro({ event, eventID, userID }) {
   const [participantList, setParticipantList] = useState([]);
   const [loading, setLoading] = useState(false)
   const [isFavorited, setIsFavorited] = useState(false)
+  const encodedImageURL = encodeURIComponent(event?.imageURL)
 
   useEffect(() => {
     participantsVerification();
@@ -196,6 +198,8 @@ export default function Intro({ event, eventID, userID }) {
     }
   };
 
+  console.log("LINK DO EVENTO NA PAGINA DE DETALHES: ", event?.imageURL)
+
   const renderHeader = () => (
     <View>
 
@@ -227,6 +231,7 @@ export default function Intro({ event, eventID, userID }) {
         </TouchableOpacity>
       </View>
 
+
       {/* <TouchableOpacity onPress={()=>{console.log(ownerEventVerification())}}>
         <Text>TESTE DE FUNÇÃO NO BOTÃO</Text>
       </TouchableOpacity> */}
@@ -240,22 +245,49 @@ export default function Intro({ event, eventID, userID }) {
           justifyContent: 'space-between'
           
         }}>
-          <Text style={{ color: Colors.black, fontSize: 27, fontFamily: 'airbnbcereal-bold', maxWidth:350}}>
-            {event?.name}
-          </Text>
+          
+          <View style={{maxWidth: 300}}>
+            <Text style={{ color: Colors.black, fontSize: 27, fontFamily: 'airbnbcereal-bold'}}>
+              {event?.name}
+            </Text>
+          </View>
+
 
           <View style={{
             display: 'flex',
             flexDirection:'row',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 10
+            gap: 10,
           }}>
             {user?.uid === userID &&
               <TouchableOpacity onPress={() => onDelete()}>
                 <FontAwesome name="trash" size={24} color="red" />
               </TouchableOpacity>
             }
+            
+            {user?.uid === userID &&
+              <TouchableOpacity
+                activeOpacity={1}
+                onPress={() => router.push({
+                  pathname: '/edit-event',
+                  params: {
+                    imagem: encodeURIComponent(event.imageURL),
+                    nome: event.name,
+                    descricao: event.about,
+                    data: event.date,
+                    id: event.id,
+                    endereco: event.adress
+                  }
+                })}
+              >
+              
+                <Feather name="edit" size={24} color="black" />
+              </TouchableOpacity>
+            }
+
+
+          
 
           <TouchableOpacity onPress={favoriteEvent}>
                 <MaterialCommunityIcons
@@ -264,6 +296,8 @@ export default function Intro({ event, eventID, userID }) {
                   color={isFavorited ? "red" : "black"}
                 />
             </TouchableOpacity>
+
+            
           </View>
           
 

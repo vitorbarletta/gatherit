@@ -7,30 +7,33 @@ import * as ImagePicker from 'expo-image-picker';
 import Button from '../../components/Button';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import {db, storage} from '../../configs/FireBaseConfig'
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, updateDoc  } from 'firebase/firestore';
 import { useUser } from '../UserContext';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import CalendarPicker from 'react-native-calendar-picker';
 import moment from 'moment';
-import {format, parseISO} from 'date-fns'
+import {format, parseISO, parse} from 'date-fns'
 import { ptBR } from 'date-fns/locale';
 import AddEventLoading from '../extra-pages/AddEventLoading'
 import AntDesign from '@expo/vector-icons/AntDesign';
 
-export default function AddEvent() {
-    const [image, setImage] = useState()
-    const [name, setName] = useState()
-    const [adress, setAdress] = useState()
-    const [about, setAbout] = useState()
-    const [date, setDate] = useState()
+
+export default function EditEvent() {
+
+    const { imagem, nome, descricao, data, id, endereco } = useLocalSearchParams();
+
+    const [name, setName] = useState(nome)
+    const [adress, setAdress] = useState(endereco)
+    const [about, setAbout] = useState(descricao)
+    const [date, setDate] = useState(data)
     const { user } = useUser();
-    const [privacity, setPrivacity] = useState('public')
     const [loading, setLoading] = useState(false)
     const router = useRouter()
-    const EventIdentification = Date.now().toString()
 
+    const eventDate = parse(data, "EEEE, d 'de' MMMM 'de' yyyy", new Date(), { locale: ptBR });
+    const [selectedDate, setSelectedDate] = useState(eventDate);
+    const [image, setImage] = useState(imagem)
     
-
     const months = [
       'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
       'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
@@ -43,11 +46,9 @@ export default function AddEvent() {
 
     const onDateChange = (date) => {
       const isoDate = date.toISOString();
-
       const formattedDate = format(parseISO(isoDate), "eeee, d 'de' MMMM 'de' yyyy", { locale: ptBR });
 
-      console.log(formattedDate);
-  
+      setSelectedDate(date);
       setDate(formattedDate);
     };
 
@@ -60,50 +61,49 @@ export default function AddEvent() {
         console.log(result)
     }
 
-    const onAddNewEvent = async () => {
-      setLoading(true); 
-  
-      try {
-        const fileName = EventIdentification + ".jpg";
-        const resp = await fetch(image);
-        const blob = await resp.blob();
-        const imageRef = ref(storage, 'event-images/' + fileName);
-  
-        await uploadBytes(imageRef, blob);
-        const downloadURL = await getDownloadURL(imageRef);
-        await saveEventDetail(downloadURL);
-        console.log("ID IMAGEM NO BANCO DE DADOS: " + fileName)
-      } catch (error) {
-        console.error("Error adding event: ", error);
-      } 
-    }
+    const onEditEvent = async () => {
+      setLoading(true);
 
-    const saveEventDetail = async (imageURL) => {
-      console.log(user)
-      await setDoc(doc(db, 'EventList', EventIdentification), {
-        id: EventIdentification,
-        name: name,
-        adress: adress,
-        about: about,
-        date: date,
-        userId: user?.uid,
-        userEmail: user?.email,
-        imageURL: imageURL,
-        username: user?.username,
-        userFullName: user?.fullname,
-        userProfilePicture: user?.profilePicture,
-        participants: [],
-        favorites: []
-      })
-      console.log("ID DO EVENTO SALVO: " + EventIdentification)
-      setLoading(false)
-      router.push('/extra-pages/EventSucess')
-      
-    }
+      try {
+          let imageURL = imagem; // Inicialmente, use a URL existente do banco de dados
+
+          if (!image.startsWith("https")) {
+              const fileName = id + ".jpg";
+              const resp = await fetch(image);
+              const blob = await resp.blob();
+              const imageRef = ref(storage, 'event-images/' + fileName);
+
+              await uploadBytes(imageRef, blob);
+              imageURL = await getDownloadURL(imageRef); // Atualiza a URL da imagem
+          }
+
+          await updateDoc(doc(db, 'EventList', id), {
+              name: name,
+              adress: adress,
+              about: about,
+              date: date,
+              imageURL: imageURL,
+              userId: user?.uid,
+              userEmail: user?.email,
+              username: user?.username,
+              userFullName: user?.fullname,
+              userProfilePicture: user?.profilePicture
+          });
+
+          console.log("Evento atualizado com sucesso");
+          router.push('/extra-pages/EditEventSucess');
+      } catch (error) {
+          console.error("Erro ao editar evento: ", error);
+      } finally {
+          setLoading(false);
+      }
+  };
 
     if (loading){
       return <AddEventLoading />
     }
+
+    
 
     return (
     <ScrollView
@@ -127,7 +127,7 @@ export default function AddEvent() {
             <Text style={{
                 fontSize: 24,
                 fontFamily: 'airbnbcereal-bold'
-            }}>Crie um novo evento</Text>
+            }}>Editar Evento</Text>
         </View>
 
       <View style={{
@@ -161,22 +161,23 @@ export default function AddEvent() {
         <TextInput
           onChangeText={(value)=>setName(value)}
           placeholder='Nome*'
+          defaultValue={nome}
           placeholderTextColor={Colors.gray}
           style={styles.input}></TextInput>
 
         <TextInput
           onChangeText={(value)=>setAdress(value)}
-          placeholder='Endereço*' 
+          placeholder='Endereço*'
+          defaultValue={endereco}
           placeholderTextColor={Colors.gray}
           style={styles.input}></TextInput>
 
         <TextInput
           onChangeText={(value)=>setAbout(value)}
-          placeholder='Descrição*' 
+          placeholder='Descrição*'
+          defaultValue={descricao}
           placeholderTextColor={Colors.gray}
           style={styles.input}></TextInput>
-
-              
           
         <View style={{marginBottom: 20}}>
           <CalendarPicker
@@ -194,11 +195,12 @@ export default function AddEvent() {
           weekdays={weekdays}
           nextTitle='Próximo'
           previousTitle='Anterior'
+          selectedStartDate={selectedDate}
           />
         </View>
 
-        <TouchableOpacity disabled={loading} style={{ paddingLeft: 50, paddingRight: 50, paddingBottom: 100 }} onPress={() => onAddNewEvent()}>
-         <Button text={"ADICIONAR"} />
+        <TouchableOpacity disabled={loading} style={{ paddingLeft: 50, paddingRight: 50, paddingBottom: 100 }} onPress={() => onEditEvent()}>
+         <Button text={"SALVAR"} />
       </TouchableOpacity>
       </View>
 

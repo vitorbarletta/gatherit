@@ -25,6 +25,8 @@ export default function MyEventsCard({event}) {
             shadowRadius: 3.84, 
             elevation: 5, 
         }}>
+
+            
             <Image
                 source={{uri: event?.imageURL}}
                 style={{
