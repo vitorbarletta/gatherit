@@ -19,7 +19,8 @@ export default function StartParticipantsCard() {
       style={{
         fontSize: 24,
         fontFamily: 'airbnbcereal-bold',
-        marginTop: 25
+        marginTop: 25,
+        textAlign: 'center'
       }}
       
       >Nenhum participante encontrado</Text>

@@ -72,6 +72,8 @@ const router = useRouter();
         username: username,
         bio: userBio,
         profilePicture: imageURL,
+        following: [],
+        followers: []
       });
     } catch (error) {
       console.log(error);

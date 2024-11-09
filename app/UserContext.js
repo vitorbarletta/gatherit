@@ -49,7 +49,7 @@ export const UserProvider = ({ children }) => {
         }
         
       } else {
-        console.log("Problema na autenticação e obtenção de dados do banco de dados: UserContext")
+        // console.log("Problema na autenticação e obtenção de dados do banco de dados: UserContext")
       }
     });
 

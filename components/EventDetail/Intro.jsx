@@ -246,7 +246,7 @@ export default function Intro({ event, eventID, userID }) {
           
         }}>
           
-          <View style={{maxWidth: 300}}>
+          <View style={{maxWidth: 250}}>
             <Text style={{ color: Colors.black, fontSize: 27, fontFamily: 'airbnbcereal-bold'}}>
               {event?.name}
             </Text>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, StatusBar  } from 'react-native';
 import { useUser } from '../UserContext';
 import { Colors } from '../../constants/Colors';
 import { Feather } from '@expo/vector-icons';
@@ -9,8 +9,9 @@ export default function Profile() {
   const { user } = useUser();
   
   return (
+
     <View style={styles.container}>
-      
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />      
 
       <Text style={{
         fontSize: 24,
