@@ -46,7 +46,6 @@ export default function AddEvent() {
 
       const formattedDate = format(parseISO(isoDate), "eeee, d 'de' MMMM 'de' yyyy", { locale: ptBR });
 
-      console.log(formattedDate);
   
       setDate(formattedDate);
     };
@@ -57,7 +56,6 @@ export default function AddEvent() {
         allowsEditing: true,
         quality: 1});
         setImage(result?.assets[0].uri)
-        console.log(result)
     }
 
     const onAddNewEvent = async () => {
@@ -72,14 +70,12 @@ export default function AddEvent() {
         await uploadBytes(imageRef, blob);
         const downloadURL = await getDownloadURL(imageRef);
         await saveEventDetail(downloadURL);
-        console.log("ID IMAGEM NO BANCO DE DADOS: " + fileName)
       } catch (error) {
         console.error("Error adding event: ", error);
       } 
     }
 
     const saveEventDetail = async (imageURL) => {
-      console.log(user)
       await setDoc(doc(db, 'EventList', EventIdentification), {
         id: EventIdentification,
         name: name,
@@ -95,7 +91,6 @@ export default function AddEvent() {
         participants: [],
         favorites: []
       })
-      console.log("ID DO EVENTO SALVO: " + EventIdentification)
       setLoading(false)
       router.push('/extra-pages/EventSucess')
       

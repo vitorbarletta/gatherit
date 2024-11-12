@@ -58,7 +58,6 @@ export default function EditEvent() {
         allowsEditing: true,
         quality: 1});
         setImage(result?.assets[0].uri)
-        console.log(result)
     }
 
     const onEditEvent = async () => {
@@ -90,7 +89,6 @@ export default function EditEvent() {
               userProfilePicture: user?.profilePicture
           });
 
-          console.log("Evento atualizado com sucesso");
           router.push('/extra-pages/EditEventSucess');
       } catch (error) {
           console.error("Erro ao editar evento: ", error);

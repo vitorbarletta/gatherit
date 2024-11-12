@@ -29,7 +29,6 @@ const router = useRouter();
 
     if (!result.canceled) {
       setUserImage(result?.assets[0]?.uri);
-      console.log(result?.assets[0]?.uri);
     }
   };
 
@@ -48,10 +47,8 @@ const router = useRouter();
       const imageRef = ref(storage, 'user-images/' + fileName);
 
       await uploadBytes(imageRef, blob);
-      console.log("File uploaded...");
 
       const downloadURL = await getDownloadURL(imageRef);
-      console.log(downloadURL);
       
       await OnCreateUserInfo(downloadURL);
       ToastAndroid.show('Perfil salvo com sucesso', ToastAndroid.BOTTOM);
@@ -66,7 +63,6 @@ const router = useRouter();
 
   const OnCreateUserInfo = async (imageURL) => {
     try {
-        console.log(user?.uid)
       await setDoc(doc(db, "Users", user?.uid), {
         fullname: fullname,
         username: username,

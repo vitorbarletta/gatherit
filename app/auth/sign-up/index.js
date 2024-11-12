@@ -23,7 +23,6 @@ export default function SignUp() {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        console.log(user);
         router.replace('/auth/user-info')
       })
       .catch((error) => {

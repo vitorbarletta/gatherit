@@ -1,30 +1,84 @@
 import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, ActivityIndicator, FlatList  } from 'react-native';
 import React, { useEffect, useState } from 'react'
 import { useLocalSearchParams } from 'expo-router'
-import { getDoc, doc, query, collection, where, getDocs } from 'firebase/firestore'
+import { getDoc, doc, query, collection, where, getDocs, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore'
 import { db } from '../../configs/FireBaseConfig'
 import { Colors } from '../../constants/Colors'
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { router } from 'expo-router';
 import MyEventsCard from '../../components/MyEventsCard';
 import SmallEventListCard from '../../components/SmallEventListCard';
+import { useUser } from '../UserContext';
 
 
 export default function ProfileDetail() {
   
     const {profileid} = useLocalSearchParams()
-    const [user, setUser] = useState()
+    const { user, updateUserData  } = useUser();
+    const [profileuser, setProfileUser] = useState()
     const [loading, setLoading] = useState(false)
     const [selectedTab, setSelectedTab] = useState('participating'); // Define a aba padrão
     const [createdEvents, setCreatedEvents] = useState([])
     const [participatingEvents, setParticipatingEvents] = useState([]);
+    const [isFollowing, setIsFollowing] = useState();
+    const [followersCount, setFollowersCount] = useState(0);
+    const [followingCount, setFollowingCount] = useState(0);
 
-
-      
     useEffect(()=>{
         GetUserDetailByUID()
         GetUserEvents()
     }, [])
+
+    useEffect(() => {
+      const checkFollowingStatus = async () => {
+        try {
+          const currentUserRef = doc(db, 'Users', user.uid);
+          const currentUserSnap = await getDoc(currentUserRef);
+  
+          if (currentUserSnap.exists() && currentUserSnap.data().following.includes(profileid)) {
+            setIsFollowing(true);
+          }
+        } catch (error) {
+          console.log("Erro ao verificar status de seguimento: ", error);
+        }
+      };
+      checkFollowingStatus();
+    }, [user.uid, profileid]);
+
+    const toggleFollow = async () => {
+      const currentUserRef = doc(db, 'Users', user.uid);
+      const profileUserRef = doc(db, 'Users', profileid);
+  
+      try {
+        if (isFollowing) {
+          // Deixar de seguir
+          await updateDoc(currentUserRef, {
+            following: arrayRemove(profileid),
+          });
+          await updateDoc(profileUserRef, {
+            followers: arrayRemove(user.uid),
+          });
+          setFollowersCount(prevCount => prevCount - 1);
+          console.log("Deixou de seguir com sucesso");
+        } else {
+          // Seguir
+          await updateDoc(currentUserRef, {
+            following: arrayUnion(profileid),
+          });
+          await updateDoc(profileUserRef, {
+            followers: arrayUnion(user.uid),
+          });
+          setFollowersCount(prevCount => prevCount + 1);
+          console.log("Seguiu com sucesso");
+        }
+        setIsFollowing(!isFollowing);
+
+        await updateUserData();
+      } catch (error) {
+        console.log("Erro ao seguir/deixar de seguir: ", error);
+      }
+    };
+
 
     const GetUserDetailByUID = async () =>{
         setLoading(true)
@@ -32,8 +86,11 @@ export default function ProfileDetail() {
         const docSnap = await getDoc(docRef)
 
         if (docSnap.exists()){
-            setUser(docSnap.data())
-            setLoading(false)
+          const profileData = docSnap.data()
+          setProfileUser(profileData)
+          setLoading(false)
+          setFollowersCount(profileData.followers.length);
+          setFollowingCount(profileData.following.length);
         } else {
             console.log("No such document")
             setLoading(false)
@@ -80,13 +137,6 @@ export default function ProfileDetail() {
         setLoading(false);
       }
     }
-
-    const renderEventItem = ({ item }) => (
-      <View style={styles.eventItem}>
-          <Text style={styles.eventName}>{item.name}</Text>
-          <Text style={styles.eventDate}>{item.date}</Text>
-      </View>
-  );
     
     return (
         <View style={styles.container}>
@@ -95,7 +145,7 @@ export default function ProfileDetail() {
                     <AntDesign name="arrowleft" size={27} color="black" />
                 </TouchableOpacity>
 
-                <Text style={styles.usernameText}>{user?.username}</Text>
+                <Text style={styles.usernameText}>{profileuser?.username}</Text>
 
             </View>
 
@@ -114,7 +164,7 @@ export default function ProfileDetail() {
                         <View style={{flex: 0.3}}>
                           <Image 
                                 style={styles.profileImage}
-                                source={{ uri: user?.profilePicture }}
+                                source={{ uri: profileuser?.profilePicture }}
                             />
                         </View>
                         
@@ -126,13 +176,13 @@ export default function ProfileDetail() {
                         }}>
 
                           <View>
-                                <Text style={styles.followersNumber}>{user?.followers.length}</Text>
+                                <Text style={styles.followersNumber}>{followersCount}</Text>
                                 <Text style={styles.followersText}>Seguidores</Text>
                           </View>
 
                           <View>
-                                <Text style={styles.followersNumber}>{user?.following.length}</Text>
-                                <Text style={styles.followersText}>Seguidores</Text>
+                                <Text style={styles.followersNumber}>{followingCount}</Text>
+                                <Text style={styles.followersText}>Seguindo</Text>
                           </View>
 
                         </View>
@@ -146,24 +196,33 @@ export default function ProfileDetail() {
                           fontFamily: 'airbnbcereal-bold',
                           marginBottom: 3
                         }}>
-                          {user?.fullname}
+                          {profileuser?.fullname}
                         </Text>
 
                         <Text style={{
                           fontSize: 14,
                           fontFamily: 'airbnbcereal-medium'
                         }}>
-                          {user?.bio}
+                          {profileuser?.bio}
                         </Text>
                       </View>
 
                       <View style={styles.buttonContainer}>
-                          <TouchableOpacity style={styles.followButton}>
-                              <Text style={styles.followButtonText}>Seguir</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity style={styles.messageButton}>
-                              <Text style={styles.messageButtonText}>Mensagem</Text>
-                          </TouchableOpacity>
+
+                        {profileid !== user.uid ?<TouchableOpacity
+                          style={isFollowing ? styles.followingButton : styles.followButton}
+                          onPress={toggleFollow}
+                        >
+                          <Text style={isFollowing ? styles.followingButtonText : styles.followButtonText}>
+                            {isFollowing ? 'Seguindo' : 'Seguir'}
+                          </Text>
+                        </TouchableOpacity>
+                        :
+                        <TouchableOpacity style={styles.messageButton}>
+                            <Text style={styles.messageButtonText}>Editar perfil</Text>
+                        </TouchableOpacity>
+                        }
+                        
                       </View>
 
                       <View style={styles.tabContainer}>
@@ -240,42 +299,57 @@ const styles = StyleSheet.create({
       fontFamily: 'airbnbcereal-book',
   },
   buttonContainer: {
-      flexDirection: 'row',
-      marginTop: 20,
-      gap: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: 10,
   },
   followButton: {
-      backgroundColor: Colors.blue,
-      paddingVertical: 8,
-      paddingHorizontal: 20,
-      borderRadius: 10,
-      flex: 0.5,
-      alignItems: 'center',
-      justifyContent: 'center',
+    backgroundColor: Colors.blue,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   followButtonText: {
-      color: Colors.white,
-      fontSize: 16,
-      fontFamily: 'airbnbcereal-bold',
+    color: Colors.white,
+    fontSize: 16,
+    fontFamily: 'airbnbcereal-bold',
   },
-  messageButton: {
-      borderColor: Colors.blue,
-      borderWidth: 1,
-      paddingVertical: 8,
-      paddingHorizontal: 20,
-      borderRadius: 10,
-      flex: 0.5,
-      alignItems: 'center',
-      justifyContent: 'center',
+  followingButton: {
+    borderColor: Colors.blue,
+    borderWidth: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  messageButtonText: {
-      color: Colors.blue,
-      fontSize: 16,
-      fontFamily: 'airbnbcereal-bold',
+  followingButtonText: {
+    color: Colors.blue,
+    fontSize: 16,
+    fontFamily: 'airbnbcereal-bold',
   },
   tabContainer: {
     flexDirection: 'row',
     marginTop: 20,
+  },
+  messageButton: {
+    borderColor: Colors.blue,
+    borderWidth: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  messageButtonText: {  
+      color: Colors.blue,
+      fontSize: 16,
+      fontFamily: 'airbnbcereal-bold',
   },
   tab: {
       flex: 1,

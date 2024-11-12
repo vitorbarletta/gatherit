@@ -295,7 +295,7 @@ export default function Intro({ event, eventID, userID }) {
                   size={28}
                   color={isFavorited ? "red" : "black"}
                 />
-            </TouchableOpacity>
+          </TouchableOpacity>
 
             
           </View>
@@ -361,7 +361,12 @@ export default function Intro({ event, eventID, userID }) {
             </Text>
           </View>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20, width: '100%' }}>
+
+        <TouchableOpacity onPress={() => router.push({
+            pathname: '/profiledetail/[profileid]',
+            params: { profileid: event?.userId }
+        })}>
+<View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20, width: '100%' }}>
           <View style={{ position: 'relative', width: 52, height: 52, justifyContent: 'center', alignItems: 'center' }}>
             <View style={{
               position: 'absolute',
@@ -395,6 +400,11 @@ export default function Intro({ event, eventID, userID }) {
             </View>
           </View>
         </View>
+
+        </TouchableOpacity>
+        
+
+
         <View style={{ display: 'flex', alignItems: 'flex-start', marginTop: 25 }}>
           <Text style={{ fontFamily: 'airbnbcereal-bold', fontSize: 18, marginBottom: 15, opacity: 0.84 }}>
             Sobre o Evento

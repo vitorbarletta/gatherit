@@ -49,7 +49,6 @@ export default function MyFavorites() {
       console.error("Erro ao buscar eventos do usuário:", error);
     } finally {
       setLoading(false);
-      console.log(userFavorite.length);
     }
   };
 

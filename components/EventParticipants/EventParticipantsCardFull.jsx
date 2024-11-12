@@ -4,13 +4,17 @@ import { Colors } from '../../constants/Colors'
 import { useRouter } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 
-export default function EventParticipantsCardFull({participant}) {
+export default function     EventParticipantsCardFull({participant}) {
   
     const router = useRouter()
     console.log(participant?.userPicture)
     return (
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 0, width: '100%', marginBottom:15}}>
+        <TouchableOpacity onPress={() => router.push({
+            pathname: '/profiledetail/[profileid]',
+            params: { profileid: participant.uid }
+        })}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 0, width: '100%', marginBottom:15}}>
         <View style={{ position: 'relative', width: 65, height: 65, justifyContent: 'center', alignItems: 'center' }}>
             <View style={{
             position: 'absolute',
@@ -43,5 +47,8 @@ export default function EventParticipantsCardFull({participant}) {
             </View>
         </View>
     </View> 
+        </TouchableOpacity>
+
+
   )
 }

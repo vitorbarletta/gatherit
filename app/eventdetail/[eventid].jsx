@@ -24,7 +24,6 @@ export default function EventDetail() {
 
         if (docSnap.exists()){
             setEvent(docSnap.data())
-            console.log("ID DO EVENTO:", eventid)
             setUserID(docSnap.data().userId)
             setLoading(false)
         } else {
