@@ -11,7 +11,7 @@ const UserContext = createContext();
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isUserLoaded, setIsUserLoaded] = useState(false); // Novo estado para controlar o carregamento do AsyncStorage
+  const [isUserLoaded, setIsUserLoaded] = useState(false); 
 
   const updateUserData = async () => {
     if (user?.uid) {

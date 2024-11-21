@@ -14,11 +14,13 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { getStorage, ref, deleteObject } from 'firebase/storage';
 import Feather from '@expo/vector-icons/Feather';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 
 export default function Intro({ event, eventID, userID }) {
   const router = useRouter();
-  const { user } = useUser();
+  const { user, updateUserData } = useUser();
   const [isParticipating, setIsParticipating] = useState(false);
   const [participantList, setParticipantList] = useState([]);
   const [loading, setLoading] = useState(false)
@@ -28,6 +30,16 @@ export default function Intro({ event, eventID, userID }) {
   useEffect(() => {
     participantsVerification();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      updateUserData();
+    }, [])
+  );
+
+  useEffect(()=>{
+    updateUserData();
+}, [])
 
   useEffect(() => {
     const docRef = doc(db, 'EventList', eventID);

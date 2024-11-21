@@ -163,7 +163,10 @@ export default function Profile() {
 
               <View style={styles.buttonContainer}>
 
-                  <TouchableOpacity style={styles.messageButton}>
+                  <TouchableOpacity style={styles.messageButton} activeOpacity={1}
+                  onPress={() => router.push({
+                    pathname: '/edit-profile'
+                  })}>
                       <Text style={styles.messageButtonText}>Editar perfil</Text>
                   </TouchableOpacity>
               </View>

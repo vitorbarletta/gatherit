@@ -40,7 +40,7 @@ const router = useRouter();
 
     setLoading(true);
     try {
-      const fileName = Date.now().toString() + ".jpg";
+      const fileName = user.uid + ".jpg";
       const resp = await fetch(userImage);
       const blob = await resp.blob();
 

@@ -43,6 +43,7 @@ export default function SignIn() {
         };
 
         setUser(userDataComplete);
+        console.log(userDataComplete)
         await AsyncStorage.setItem('@user', JSON.stringify(userDataComplete));
         router.replace('/home');
         console.log("Usuário encontrado no banco de dados.");
