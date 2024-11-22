@@ -14,7 +14,6 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 export default function TabLayout() {
   
   return (
-  <UserProvider>
     <Tabs screenOptions={{
       headerShown: false,
       tabBarActiveTintColor: Colors.blue,
@@ -57,6 +56,5 @@ export default function TabLayout() {
           tabBarIcon:({color}) => <FontAwesome5 name="user-alt" size={25} color={color} />
         }}/>
     </Tabs>
-  </UserProvider>
   )
 }
