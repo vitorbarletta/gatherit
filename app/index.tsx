@@ -5,6 +5,10 @@ import { Redirect } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from '@/app/UserContext';
 import AddEventLoading from '../app/extra-pages/AddEventLoading.jsx';
+import { LogBox } from 'react-native';
+
+LogBox.ignoreAllLogs();
+global.alert = () => {}
 
 export default function Index() {
   const { user, loading } = useUser();

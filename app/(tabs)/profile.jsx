@@ -26,7 +26,6 @@ export default function Profile() {
 
   useFocusEffect(
     React.useCallback(() => {
-      // Atualizar dados do usuário
       updateUserData();
     }, [])
   );

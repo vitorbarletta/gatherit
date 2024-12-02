@@ -70,6 +70,7 @@ export default function SmallEventListCard({event}) {
                         <Text style={{
                             fontFamily: 'airbnbcereal-medium',
                             fontSize: 13,
+                            maxWidth: 240
                         }}>{event?.adress}</Text>
                     </View>
                 </View>

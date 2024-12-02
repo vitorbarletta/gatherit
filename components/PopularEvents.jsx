@@ -4,43 +4,15 @@ import { collection, query, getDocs, limit } from 'firebase/firestore';
 import { db } from '../configs/FireBaseConfig';
 import PopularEventCard from './PopularEventCard';
 
-export default function PopularEvents({ refreshTrigger }) {
-    
-    const [eventList, setEventList] = useState([])
-    const [loading, setLoading] = useState(false)
-
-    useEffect(() => {
-      GetEventList();
-    }, [refreshTrigger]);
-
-    const GetEventList = async () => {
-        setLoading(true)
-        setEventList([])
-        const q = query(collection(db, 'EventList'), limit(10))
-        const querySnapshot = await getDocs(q)
-        querySnapshot.forEach((doc) => {
-            setEventList(prev => [...prev, {id:doc?.id,...doc.data()}])
-        })
-        setLoading(false)
-    }
-
+export default function PopularEvents({events, loading }) {
     return (
-    <View style={{
-        marginTop: 15,
-        padding: 13,
-        paddingRight: 0
-    }}>
-      <Text style={{
-        fontSize: 20,
-        fontFamily: 'airbnbcereal-bold',
-      }}>Eventos em Alta</Text>
+    <View>
       <View style={styles.container}>  
         <FlatList
-        data={eventList}
+        data={events}
         bounces={false}
         bouncesZoom={false}
         horizontal={true}
-        onRefresh={GetEventList}
         refreshing={loading}
         contentContainerStyle={styles.flatListContainer}      
         showsHorizontalScrollIndicator={false}

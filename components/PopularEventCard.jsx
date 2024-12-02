@@ -18,7 +18,8 @@ export default function PopularEventCard({event}) {
             marginTop: 20,
             backgroundColor: Colors.white,
             borderRadius: 18,
-            padding: 10,
+            padding: 5,
+            paddingTop: 2
         }}>
             <Image
                 source={{uri: event?.imageURL}}
@@ -31,7 +32,8 @@ export default function PopularEventCard({event}) {
             <View style={{
                 padding: 10, 
                 flexDirection: 'column',
-                gap: 8
+                gap: 8,
+                paddingLeft: 0
             }}>
                 <View>
                     <Text
@@ -70,9 +72,13 @@ export default function PopularEventCard({event}) {
                     marginLeft: 3
                 }}>
                     <FontAwesome6 name="location-dot" size={16} color="" />
-                    <Text style={{
+                    <Text 
+                    numberOfLines={1}
+                    ellipsizeMode='tail'
+                    style={{
                         fontFamily: 'airbnbcereal-bold',
                         fontSize: 13,
+                        width: 200
                     }}>{event?.adress}</Text>
                 </View>
             </View>
